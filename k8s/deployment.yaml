@@ -19,8 +19,7 @@ spec:
       labels:
         app: notes
     spec:
-      scurityContext:
-        runAsUser: 1000         # Non-root user
+      securityContext:
         fsGroup: 1000           # Ensure PVC files are owned by appuser
       containers:
         - name: notes
