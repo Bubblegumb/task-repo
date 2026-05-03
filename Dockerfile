@@ -12,7 +12,11 @@ RUN npm ci --omit=dev
 COPY app/ .
  
 # Run as non-root user and ensure data dir is writable
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup && chown -R appuser:appgroup /data
+# Create the directory AND the user/group, then change ownership
+RUN mkdir -p /data && \
+    addgroup -S appgroup && \
+    adduser -S appuser -G appgroup && \
+    chown -R appuser:appgroup /data
 USER appuser
  
 EXPOSE 3000
