@@ -1,0 +1,55 @@
+steps:
+  # Step 1: Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build'
+    args:
+      - build
+      - -t
+      - docker.io/$_DOCKERHUB_USER/notes-app:$SHORT_SHA
+      - -t
+      - docker.io/$_DOCKERHUB_USER/notes-app:latest
+      - .
+ 
+  # Step 2: Push both tags to Docker Hub
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-sha'
+    waitFor: ['build']
+    args: ['push', 'docker.io/$_DOCKERHUB_USER/notes-app:$SHORT_SHA']
+ 
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-latest'
+    waitFor: ['build']
+    args: ['push', 'docker.io/$_DOCKERHUB_USER/notes-app:latest']
+ 
+  # Step 3: Authenticate to GKE
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'get-credentials'
+    waitFor: ['push-sha']
+    args:
+      - container
+      - clusters
+      - get-credentials
+      - $_CLUSTER_NAME
+      - --zone
+      - $_CLUSTER_ZONE
+ 
+  # Step 4: Rolling update with the new image
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: 'deploy'
+    waitFor: ['get-credentials']
+    args:
+      - set
+      - image
+      - deployment/notes-deployment
+      - notes=docker.io/$_DOCKERHUB_USER/notes-app:$SHORT_SHA
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=$_CLUSTER_ZONE'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=$_CLUSTER_NAME'
+ 
+substitutions:
+  _DOCKERHUB_USER: s223910831      # Replace with your Docker Hub ID
+  _CLUSTER_NAME:   your-gke-cluster-name      # Replace with your cluster name
+  _CLUSTER_ZONE:   australia-southeast1-a     # Replace with your cluster zone
+ 
+options:
+  logging: CLOUD_LOGGING_ONLY

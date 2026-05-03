@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: notes-service
+  labels:
+    app: notes
+spec:
+  selector:
+    app: notes             # Routes traffic to pods with label app: notes
+  ports:
+    - name: http
+      port: 80             # External port (standard HTTP)
+      targetPort: 3000     # Matches containerPort in Deployment
+      protocol: TCP
+  type: LoadBalancer       # Provisions a GCP external load balancer

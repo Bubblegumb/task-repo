@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-deployment
+  labels:
+    app: notes
+spec:
+  replicas: 1                 # Single replica — ReadWriteOnce PVC supports one node
+  selector:
+    matchLabels:
+      app: notes
+  strategy:
+    type: RollingUpdate       # Zero-downtime updates
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: notes
+    spec:
+      containers:
+        - name: notes
+          image: s223910831/notes-app:v1 # Updated by CI/CD
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DATA_DIR
+              value: /data
+            - name: NODE_ENV
+              value: production
+          volumeMounts:
+            - name: notes-data
+              mountPath: /data             # Must match DATA_DIR env var
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+      volumes:
+        - name: notes-data
+          persistentVolumeClaim:
+            claimName: notes-pvc    # Must match pvc.yaml metadata.name
