@@ -48,7 +48,7 @@ steps:
  
 substitutions:
   _DOCKERHUB_USER: s223910831      # Replace with your Docker Hub ID
-  _CLUSTER_NAME:   your-gke-cluster-name      # Replace with your cluster name
+  _CLUSTER_NAME:   cluster-1      # Replace with your cluster name
   _CLUSTER_ZONE:   australia-southeast1-a     # Replace with your cluster zone
  
 options:
