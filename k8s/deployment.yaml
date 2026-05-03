@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: notes
-          image: s223910831/notes-app:v1 # Updated by CI/CD
+          image: s223910831/notes-app:v2 # Updated by CI/CD
           ports:
             - containerPort: 3000
           env:
