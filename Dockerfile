@@ -2,10 +2,10 @@
 FROM node:20-alpine
  
 # Create app directory
-WORKDIR /data
+WORKDIR /app
  
 # Install dependencies first (cached layer)
-COPY app/package*.json ./
+COPY app/ .
 RUN npm ci --omit=dev
  
 # Copy application source
