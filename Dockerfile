@@ -20,4 +20,4 @@ RUN mkdir -p /data && \
 USER appuser
  
 EXPOSE 3000
-CMD ["node", "notes.js"]
+CMD ["node", "/app/notes.js"]
